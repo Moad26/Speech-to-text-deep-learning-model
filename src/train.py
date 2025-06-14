@@ -10,16 +10,21 @@ import wandb
 
 
 def collate_fn(batch):
-    specs, labels = zip(*batch)
+    """Custom collate function to handle variable length labels"""
+    spectrograms = []
+    labels = []
+    label_lengths = []
 
-    specs = torch.stack(specs)  # [batch, 80, 157]
+    for spec, label in batch:
+        spectrograms.append(spec)
+        labels.append(label)
+        label_lengths.append(len(label))
 
-    label_lengths = torch.tensor([len(label) for label in labels])
-    labels = torch.nn.utils.rnn.pad_sequence(
-        labels, batch_first=True, padding_value=0  # Use 0 as padding index
-    )
+    spectrograms = torch.stack(spectrograms)
+    labels = torch.cat(labels)
+    label_lengths = torch.tensor(label_lengths, dtype=torch.long)
 
-    return specs, labels, label_lengths
+    return spectrograms, labels, label_lengths
 
 
 def train_epoch(model, dataloader, optimizer, criterion, device):
@@ -136,9 +141,9 @@ def evaluate(model, dataloader, char2idx, device):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_dir", default="./data")
-    parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--batch_size", type=int, default=10)
     parser.add_argument("--lr", type=float, default=3e-4)
-    parser.add_argument("--epochs", type=int, default=20)
+    parser.add_argument("--epochs", type=int, default=5)
     return parser.parse_args()
 
 
@@ -165,6 +170,7 @@ def main():
     ctc_loss = nn.CTCLoss(blank=train_dataset.char2idx["-"], zero_infinity=True)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, "min", patience=3)
 
+    best_wer = float("inf")
     for epoch in range(args.epochs):
         train_loss = train_epoch(model, train_loader, optimizer, ctc_loss, device)
         valid_wer = evaluate(model, valid_loader, train_dataset.char2idx, device)
@@ -173,7 +179,6 @@ def main():
         print(f"Train Loss: {train_loss:.4f} | Valid WER: {valid_wer:.2%}")
 
         scheduler.step(valid_wer)
-        best_wer = float("inf")
         # Save checkpoint
         if valid_wer < best_wer:
             torch.save(model.state_dict(), f"best_model_{valid_wer:.2f}.pt")
