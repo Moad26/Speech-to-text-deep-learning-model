@@ -143,7 +143,7 @@ def parse_args():
     parser.add_argument("--data_dir", default="./data")
     parser.add_argument("--batch_size", type=int, default=10)
     parser.add_argument("--lr", type=float, default=3e-4)
-    parser.add_argument("--epochs", type=int, default=5)
+    parser.add_argument("--epochs", type=int, default=10)
     return parser.parse_args()
 
 
@@ -181,7 +181,7 @@ def main():
         scheduler.step(valid_wer)
         # Save checkpoint
         if valid_wer < best_wer:
-            torch.save(model.state_dict(), f"best_model_{valid_wer:.2f}.pt")
+            torch.save(model.state_dict(), f"../model/best_model_{valid_wer:.2f}.pt")
             best_wer = valid_wer
 
 
