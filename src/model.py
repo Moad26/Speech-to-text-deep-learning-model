@@ -5,12 +5,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def conv3x3(in_channels, out_channels, stride=1):
+    """easier way to define the conv layer many times"""
     return nn.Conv2d(
         in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False
     )
 
 
 class ResidualBlock(nn.Module):
+    """the residual block for residual cnn"""
     def __init__(
         self, in_channels, out_channels, stride=1, downsample=None, dropout=0.1
     ):
@@ -38,6 +40,7 @@ class ResidualBlock(nn.Module):
 
 
 class BidirectionalLSTM(nn.Module):
+    """a more sofisticated biderictional lstm"""
     def __init__(self, input_size, hidden_size, num_layers, num_classes, dropout=0.1):
         super().__init__()
         self.lstm = nn.LSTM(
@@ -56,6 +59,7 @@ class BidirectionalLSTM(nn.Module):
 
 
 class ASRCNNFeatureExtractor(nn.Module):
+    """the cnn block that's gonna transform the spetrogram to feature maps"""
     def __init__(self, input_channels=1, dropout=0.1):
         super(ASRCNNFeatureExtractor, self).__init__()
 
@@ -119,6 +123,8 @@ class ASRCNNFeatureExtractor(nn.Module):
 
 
 class ASRModel(nn.Module):
+    """the whole model combined of the feature maps cnn extractor and biderictionnal lstm model 
+       and then give log probability of caracters for each time step"""
     def __init__(self, num_classes, hidden_size=256, num_lstm_layers=2, dropout=0.1):
         super(ASRModel, self).__init__()
 

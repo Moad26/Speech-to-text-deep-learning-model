@@ -1,4 +1,3 @@
-from math import log
 import torch
 from torch.utils.data import DataLoader
 from model import ASRModel
@@ -6,7 +5,6 @@ from datapr import PreprocessedLibriSpeech
 import torch.nn as nn
 from tqdm import tqdm
 import argparse
-import wandb
 
 
 def collate_fn(batch):
@@ -28,6 +26,7 @@ def collate_fn(batch):
 
 
 def train_epoch(model, dataloader, optimizer, criterion, device):
+    """Training the model for each epoch"""
     model.train()
     total_loss = 0
 
@@ -58,6 +57,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device):
 
 def greedy_decode(log_probs, char2idx):
     """Convert network outputs to text using greedy decoding"""
+    # inverse the char2idx dict
     idx2char = {v: k for k, v in char2idx.items()}
 
     # Get most probable characters at each time step
@@ -66,7 +66,6 @@ def greedy_decode(log_probs, char2idx):
 
     decoded_texts = []
     for sample in max_indices:
-        # Merge repeated characters
         merged = []
         prev_char = None
         for char_idx in sample:
@@ -74,7 +73,6 @@ def greedy_decode(log_probs, char2idx):
                 merged.append(char_idx)
                 prev_char = char_idx
 
-        # Remove blank tokens
         merged = [idx2char[c] for c in merged if c != char2idx["-"]]
         decoded_texts.append("".join(merged))
 
@@ -111,6 +109,7 @@ def calculate_wer(reference, hypothesis):
 
 
 def evaluate(model, dataloader, char2idx, device):
+    """evaluating the model"""
     model.eval()
     total_wer = 0
     total_samples = 0
@@ -139,6 +138,7 @@ def evaluate(model, dataloader, char2idx, device):
 
 
 def parse_args():
+    """easier way to just add args"""
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_dir", default="./data")
     parser.add_argument("--batch_size", type=int, default=10)
