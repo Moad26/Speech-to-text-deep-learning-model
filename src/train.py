@@ -1,4 +1,5 @@
 import torch
+import os
 from torch.utils.data import DataLoader
 from model import ASRModel
 from datapr import PreprocessedLibriSpeech
@@ -149,6 +150,7 @@ def parse_args():
 
 def main():
     args = parse_args()
+    os.makedirs("../model", exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_dataset = PreprocessedLibriSpeech(
