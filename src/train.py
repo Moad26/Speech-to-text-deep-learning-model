@@ -154,7 +154,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_dataset = PreprocessedLibriSpeech(
-        root="../input", url="test-clean", augment=False, download=True
+        root="../input", url="train-clean-360", augment=False, download=True
     )
     valid_dataset = PreprocessedLibriSpeech(
         root="../input", url="dev-clean", augment=False, download=True
