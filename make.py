@@ -115,32 +115,7 @@ def install_requirements():
 
 def download_dataset():
     """Download and extract the empathetic dialogues dataset"""
-    print_colored("Downloading dataset...")
-
-    input_dir = Path("input")
-    input_dir.mkdir(exist_ok=True)
-
-    dataset_url = "https://dl.fbaipublicfiles.com/parlai/empatheticdialogues/empatheticdialogues.tar.gz"
-    tar_path = input_dir / "empatheticdialogues.tar.gz"
-
-    try:
-        # Download the file
-        print_colored("Downloading empatheticdialogues.tar.gz...")
-        urllib.request.urlretrieve(dataset_url, tar_path)
-
-        # Extract the tar file
-        print_colored("Extracting dataset...")
-        with tarfile.open(tar_path, "r:gz") as tar:
-            tar.extractall(input_dir)
-
-        # Remove the tar file
-        tar_path.unlink()
-        print_colored("Dataset downloaded and extracted successfully!")
-        return True
-
-    except Exception as e:
-        print_colored(f"Error downloading dataset: {str(e)}", Colors.FAIL)
-        return False
+    pass
 
 
 def clean():
